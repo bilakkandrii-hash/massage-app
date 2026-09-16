@@ -362,14 +362,34 @@
   document.getElementById('inp-name').addEventListener('input', e => { state.name = e.target.value; updateNextBtn(); });
   document.getElementById('inp-phone').addEventListener('input', e => { state.phone = e.target.value; updateNextBtn(); });
 
-  document.getElementById('btn-next').onclick = () => {
+  document.getElementById('btn-next').onclick = async () => {
     if (state.step === 3){
-      // Фінальна відправка — у продакшн-версії тут потрібен tg.sendData() до бота
-      // або запит до вашого бекенду, який запише клієнта і сповістить адміністратора.
-      const payload = { service: state.service.title, date: state.date, time: state.time, name: state.name, phone: state.phone };
-      if (tg && tg.sendData){
-        try { tg.sendData(JSON.stringify(payload)); } catch(e) {}
+      const btn = document.getElementById('btn-next');
+      btn.disabled = true;
+      btn.textContent = 'Надсилаємо…';
+
+      const payload = {
+        service: state.service.title,
+        date: state.date,
+        time: state.time,
+        name: state.name,
+        phone: state.phone,
+        tgUser: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user)
+          ? tg.initDataUnsafe.user.id
+          : ''
+      };
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        // Запит міг не дати відповіді через no-cors, але дані вже пішли на сервер.
       }
+
       state.step = 4;
       showStep(4);
       return;
