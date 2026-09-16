@@ -230,17 +230,42 @@
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) { tg.ready(); tg.expand(); }
 
-  // --- Data (placeholder — replace with real services/schedule) ---
-  const services = [
-    { id: 's1', title: 'Класичний масаж', duration: '60 хв', price: '900 грн' },
-    { id: 's2', title: 'Спортивний масаж', duration: '60 хв', price: '1000 грн' },
-    { id: 's3', title: 'Антицелюлітний масаж', duration: '45 хв', price: '850 грн' },
-    { id: 's4', title: 'Масаж обличчя', duration: '30 хв', price: '600 грн' },
-  ];
-  const takenSlots = ['10:00', '14:30']; // приклад зайнятих слотів
+  // --- Джерело даних: Google Apps Script Web App ---
+  // Вставте сюди URL, який Apps Script видасть після Deploy → Web app
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-DPEiYJkUpUILSLb1qX0AC39xa26KLJKQfCJXttLBJ7NKvrPsX2a3Q5T_gbmEBkhL/exec';
+
+  let services = [];
+  let takenSlots = [];
   const allSlots = ['09:00','10:00','11:00','12:00','13:00','14:00','14:30','15:00','16:00','17:00','18:00'];
 
   const state = { step: 1, service: null, date: null, time: null, name: '', phone: '' };
+
+  async function loadServices(){
+    const wrap = document.getElementById('service-list');
+    wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Завантаження послуг…</div>';
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=services`);
+      services = await res.json();
+      if (!Array.isArray(services)) throw new Error('bad response');
+    } catch (err) {
+      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Не вдалося завантажити послуги. Перевірте URL скрипта та з’єднання.</div>';
+      return;
+    }
+    renderServices();
+  }
+
+  async function loadTakenSlots(date){
+    const wrap = document.getElementById('slot-grid');
+    wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Завантаження часу…</div>';
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=slots&date=${date}`);
+      takenSlots = await res.json();
+      if (!Array.isArray(takenSlots)) throw new Error('bad response');
+    } catch (err) {
+      takenSlots = [];
+    }
+    renderSlots();
+  }
 
   const dowNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
   function buildDates(){
@@ -273,7 +298,7 @@
       const el = document.createElement('div');
       el.className = 'date-chip' + (state.date === key ? ' selected' : '');
       el.innerHTML = `<span class="dow">${dowNames[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
-      el.onclick = () => { state.date = key; state.time = null; renderDates(); renderSlots(); updateNextBtn(); };
+      el.onclick = () => { state.date = key; state.time = null; renderDates(); loadTakenSlots(key); updateNextBtn(); };
       wrap.appendChild(el);
     });
   }
@@ -370,7 +395,7 @@
   // Map link (замінити адресу на реальну)
   document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
 
-  renderServices();
+  loadServices();
   showStep(1);
 </script>
 </body>
