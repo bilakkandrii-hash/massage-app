@@ -222,7 +222,7 @@
     <a class="map-btn" id="map-link" href="#" target="_blank">Прокласти маршрут</a>
   </div>
 
-  <div class="note" id="diag">Прототип. Дані та контакти — тестові.</div>
+  <div class="note">Дані кабінету — тестові, замінюються на реальні перед публікацією.</div>
 </div>
 
 <script>
@@ -235,8 +235,8 @@
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-DPEiYJkUpUILSLb1qX0AC39xa26KLJKQfCJXttLBJ7NKvrPsX2a3Q5T_gbmEBkhL/exec';
 
   let services = [];
-  let takenSlots = [];
-  const allSlots = ['09:00','10:00','11:00','12:00','13:00','14:00','14:30','15:00','16:00','17:00','18:00'];
+  let availableSlots = [];
+  let dayClosed = false;
 
   const state = { step: 1, service: null, date: null, time: null, name: '', phone: '' };
 
@@ -254,15 +254,18 @@
     renderServices();
   }
 
-  async function loadTakenSlots(date){
+  async function loadSlots(date){
     const wrap = document.getElementById('slot-grid');
     wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Завантаження часу…</div>';
+    availableSlots = [];
+    dayClosed = false;
     try {
       const res = await fetch(`${APPS_SCRIPT_URL}?action=slots&date=${date}`);
-      takenSlots = await res.json();
-      if (!Array.isArray(takenSlots)) throw new Error('bad response');
+      const data = await res.json();
+      availableSlots = Array.isArray(data.slots) ? data.slots : [];
+      dayClosed = !!data.closed;
     } catch (err) {
-      takenSlots = [];
+      availableSlots = [];
     }
     renderSlots();
   }
@@ -298,7 +301,7 @@
       const el = document.createElement('div');
       el.className = 'date-chip' + (state.date === key ? ' selected' : '');
       el.innerHTML = `<span class="dow">${dowNames[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
-      el.onclick = () => { state.date = key; state.time = null; renderDates(); loadTakenSlots(key); updateNextBtn(); };
+      el.onclick = () => { state.date = key; state.time = null; renderDates(); loadSlots(key); updateNextBtn(); };
       wrap.appendChild(el);
     });
   }
@@ -307,12 +310,21 @@
     const wrap = document.getElementById('slot-grid');
     wrap.innerHTML = '';
     if (!state.date){ return; }
-    allSlots.forEach(t => {
-      const isTaken = takenSlots.includes(t);
+
+    if (dayClosed){
+      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Цього дня кабінет не працює. Оберіть іншу дату.</div>';
+      return;
+    }
+    if (!availableSlots.length){
+      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">На цей день вільного часу немає. Спробуйте іншу дату.</div>';
+      return;
+    }
+
+    availableSlots.forEach(t => {
       const el = document.createElement('div');
-      el.className = 'slot' + (isTaken ? ' taken' : '') + (state.time === t ? ' selected' : '');
+      el.className = 'slot' + (state.time === t ? ' selected' : '');
       el.textContent = t;
-      if (!isTaken){ el.onclick = () => { state.time = t; renderSlots(); updateNextBtn(); }; }
+      el.onclick = () => { state.time = t; renderSlots(); updateNextBtn(); };
       wrap.appendChild(el);
     });
   }
@@ -414,21 +426,6 @@
 
   // Map link (замінити адресу на реальну)
   document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
-
-  // --- Службова діагностика (видалити після налагодження) ---
-  const FILE_VERSION = 'v3';
-  (function showDiag(){
-    const sdkOk = !!(window.Telegram && window.Telegram.WebApp);
-    const userId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user)
-      ? tg.initDataUnsafe.user.id
-      : 'немає';
-    const hasHash = location.hash.indexOf('tgWebAppData') !== -1 ? 'так' : 'ні';
-    document.getElementById('diag').textContent =
-      'Версія файлу: ' + FILE_VERSION +
-      ' | SDK: ' + (sdkOk ? 'завантажено' : 'НЕ завантажено') +
-      ' | ID: ' + userId +
-      ' | дані в URL: ' + hasHash;
-  })();
 
   loadServices();
   showStep(1);
