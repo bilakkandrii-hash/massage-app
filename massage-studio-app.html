@@ -222,7 +222,7 @@
     <a class="map-btn" id="map-link" href="#" target="_blank">Прокласти маршрут</a>
   </div>
 
-  <div class="note">Прототип. Дані та контакти — тестові, замінюються на реальні перед публікацією.</div>
+  <div class="note" id="diag">Прототип. Дані та контакти — тестові.</div>
 </div>
 
 <script>
@@ -414,6 +414,21 @@
 
   // Map link (замінити адресу на реальну)
   document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
+
+  // --- Службова діагностика (видалити після налагодження) ---
+  const FILE_VERSION = 'v3';
+  (function showDiag(){
+    const sdkOk = !!(window.Telegram && window.Telegram.WebApp);
+    const userId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user)
+      ? tg.initDataUnsafe.user.id
+      : 'немає';
+    const hasHash = location.hash.indexOf('tgWebAppData') !== -1 ? 'так' : 'ні';
+    document.getElementById('diag').textContent =
+      'Версія файлу: ' + FILE_VERSION +
+      ' | SDK: ' + (sdkOk ? 'завантажено' : 'НЕ завантажено') +
+      ' | ID: ' + userId +
+      ' | дані в URL: ' + hasHash;
+  })();
 
   loadServices();
   showStep(1);
