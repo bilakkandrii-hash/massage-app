@@ -229,13 +229,37 @@
     <a class="map-btn" id="map-link" href="#" target="_blank">Прокласти маршрут</a>
   </div>
 
-  <div class="note">Дані кабінету — тестові, замінюються на реальні перед публікацією.</div>
+  <div class="note" id="diag">Дані кабінету — тестові.</div>
 </div>
 
 <script>
   // --- Telegram WebApp integration (safe no-op outside Telegram) ---
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) { tg.ready(); tg.expand(); }
+
+  /**
+   * ID користувача Telegram.
+   * Основний шлях — SDK. Якщо він не віддав дані, читаємо їх напряму
+   * з адреси сторінки: Telegram передає initData у фрагменті після #.
+   */
+  function getTelegramUserId(){
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id){
+      return String(tg.initDataUnsafe.user.id);
+    }
+    try {
+      const hash = location.hash.replace(/^#/, '');
+      const outer = new URLSearchParams(hash);
+      const raw = outer.get('tgWebAppData');
+      if (!raw) return '';
+      const inner = new URLSearchParams(raw);
+      const userJson = inner.get('user');
+      if (!userJson) return '';
+      const user = JSON.parse(decodeURIComponent(userJson));
+      return user && user.id ? String(user.id) : '';
+    } catch (err) {
+      return '';
+    }
+  }
 
   // --- Джерело даних: Google Apps Script Web App ---
   // Вставте сюди URL, який Apps Script видасть після Deploy → Web app
@@ -487,9 +511,7 @@
         time: state.time,
         name: state.name,
         phone: state.phone,
-        tgUser: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user)
-          ? tg.initDataUnsafe.user.id
-          : ''
+        tgUser: getTelegramUserId()
       };
 
       try {
@@ -531,6 +553,10 @@
 
   // Map link (замінити адресу на реальну)
   document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
+
+  // Тимчасова перевірка — прибрати після налагодження
+  document.getElementById('diag').textContent =
+    'ID клієнта: ' + (getTelegramUserId() || 'не визначено') + ' · v6';
 
   loadServices();
   showStep(1);
