@@ -3,147 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Кабінет масажу — запис</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>SOMA · Запис на масаж</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #1B211C;
-    --bg-raised: #232A24;
-    --bg-input: #2A322B;
-    --text: #F1EDE4;
-    --text-dim: #A8AC9F;
-    --accent: #B97A56;
-    --accent-text: #1B211C;
-    --sage: #7C8B6F;
-    --line: rgba(241,237,228,0.10);
-    --danger: #C97A6B;
+    /* Палітра брендбука */
+    --moss:        #2B3A32;
+    --sage:        #8FA08A;
+    --sand:        #E8DDC8;
+    --linen:       #F6F1E7;
+    --bronze:      #8F6034;
+    --bronze-soft: #D2B48A;
+
+    --text:        var(--moss);
+    --text-soft:   #5E6B62;
+    --line:        rgba(43, 58, 50, 0.12);
   }
+
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html,body{
-    margin:0; padding:0; background: var(--bg); color: var(--text);
-    font-family: 'Karla', sans-serif; font-size: 16px; line-height: 1.5;
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--linen);
+    color: var(--text);
+    font-family: 'Jost', system-ui, sans-serif;
+    font-size: 17px; font-weight: 300; line-height: 1.56;
     min-height: 100vh; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
-  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:500; margin:0; letter-spacing: -0.01em; }
-  .app{ max-width: 480px; margin: 0 auto; padding: 28px 20px 40px; }
 
-  /* Hero */
-  .hero{ margin-bottom: 22px; }
-  .hero-eyebrow{ color: var(--sage); font-size: 14px; margin-bottom: 6px; }
-  .hero h1{ font-size: 34px; line-height: 1.08; color: var(--text); }
-  .hero p{ color: var(--text-dim); margin-top: 10px; font-size: 15px; max-width: 34ch; }
-
-  /* Tabs */
-  .tabs{
-    display:flex; gap:4px; background: var(--bg-raised); border-radius: 14px;
-    padding: 4px; margin-bottom: 26px; border: 1px solid var(--line);
+  /* Ледь помітна фактура крафтового паперу */
+  body::before{
+    content:''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    opacity: .5;
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(143,160,138,.10), transparent 42%),
+      radial-gradient(circle at 84% 78%, rgba(210,180,138,.12), transparent 46%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
   }
+
+  h1,h2,h3{ font-family:'Cormorant Garamond', Georgia, serif; font-weight: 500; margin:0; }
+
+  .app{ position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 26px 22px 44px; }
+
+  /* ---- Логотип ---- */
+  .brand{ text-align:center; margin-bottom: 26px; position: relative; }
+  .brand-greek{
+    font-family:'Cormorant Garamond', serif; font-size: 40px; font-weight: 500;
+    letter-spacing: -0.015em; line-height: 1; color: var(--moss);
+  }
+  .brand-wave{ display:block; margin: 7px auto 6px; }
+  .brand-latin{
+    font-family:'Cormorant Garamond', serif; font-size: 21px; letter-spacing: .06em;
+    color: var(--moss); line-height: 1;
+  }
+  .brand-tag{
+    font-size: 10.5px; font-weight: 400; letter-spacing: .35em;
+    color: var(--sage); text-transform: uppercase; margin-top: 9px;
+  }
+  .branch{ position:absolute; top: -6px; right: -6px; opacity: .55; }
+
+  /* ---- Шапка ---- */
+  .hero{ text-align:center; margin-bottom: 26px; }
+  .eyebrow{
+    font-size: 11px; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; margin-bottom: 14px;
+  }
+  .hero h1{ font-size: 40px; line-height: 1.08; letter-spacing: -0.01em; }
+  .hero p{
+    color: var(--text-soft); margin: 14px auto 0; font-size: 16px;
+    max-width: 30ch; font-weight: 300;
+  }
+
+  /* ---- Вкладки ---- */
+  .tabs{ display:flex; gap:4px; background: var(--sand); border-radius: 100px; padding: 4px; margin-bottom: 28px; }
   .tab{
-    flex:1; text-align:center; padding: 11px 0; border-radius: 10px;
-    color: var(--text-dim); font-weight: 600; font-size: 14.5px; cursor: pointer;
-    border: none; background: none; font-family: 'Karla', sans-serif;
-    transition: background .18s ease, color .18s ease;
+    flex:1; text-align:center; padding: 11px 0; border-radius: 100px; border:none;
+    background: none; cursor: pointer; font-family:'Jost', sans-serif;
+    font-size: 14px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text-soft); transition: background .2s ease, color .2s ease;
   }
-  .tab.active{ background: var(--accent); color: var(--accent-text); }
+  .tab.active{ background: var(--moss); color: var(--linen); }
 
   .panel{ display:none; }
-  .panel.active{ display:block; animation: fadeIn .25s ease; }
-  @keyframes fadeIn{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform:none;} }
+  .panel.active{ display:block; animation: rise .3s ease; }
+  @keyframes rise{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
 
-  /* Step progress */
-  .steps{ display:flex; align-items:center; gap:6px; margin-bottom: 22px; }
-  .step-dot{ height: 4px; flex:1; border-radius: 4px; background: var(--line); transition: background .2s ease; }
+  /* ---- Індикатор кроків ---- */
+  .steps{ display:flex; align-items:center; gap:6px; margin-bottom: 24px; }
+  .step-dot{ height: 2px; flex:1; background: var(--line); transition: background .25s ease; }
   .step-dot.done{ background: var(--sage); }
-  .step-dot.current{ background: var(--accent); }
+  .step-dot.current{ background: var(--bronze); }
 
-  .card{
-    background: var(--bg-raised); border: 1px solid var(--line);
-    border-radius: 16px; padding: 16px; margin-bottom: 12px;
-    cursor: pointer; transition: border-color .15s ease, transform .1s ease;
+  .section-label{
+    font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; margin: 26px 0 12px;
   }
-  .card:active{ transform: scale(0.99); }
-  .card.selected{ border-color: var(--accent); background: linear-gradient(180deg, rgba(185,122,86,0.10), rgba(185,122,86,0.03)); }
-  .card-row{ display:flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .card-title{ font-family:'Fraunces', serif; font-size: 18px; color: var(--text); }
-  .card-price{ color: var(--accent); font-weight: 700; font-size: 15px; white-space: nowrap; }
-  .card-sub{ color: var(--text-dim); font-size: 13.5px; margin-top: 4px; }
-
-  .section-label{ color: var(--text-dim); font-size: 13px; text-transform: none; margin: 22px 0 10px; }
   .section-label:first-child{ margin-top: 0; }
 
-  .date-row{ display:flex; gap:8px; overflow-x:auto; padding-bottom: 4px; margin: 0 -20px 4px; padding-left:20px; padding-right:20px; }
-  .date-chip{
-    flex: 0 0 auto; min-width: 58px; text-align:center; padding: 10px 8px;
-    border-radius: 14px; background: var(--bg-raised); border: 1px solid var(--line);
-    cursor:pointer; color: var(--text-dim);
+  /* ---- Картки ---- */
+  .card{
+    background: var(--sand); border: 1px solid transparent; border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 9px; cursor: pointer;
+    transition: background .18s ease, border-color .18s ease;
   }
-  .date-chip .dow{ font-size: 12px; display:block; margin-bottom: 2px; }
-  .date-chip .num{ font-family:'Fraunces', serif; font-size: 18px; color: var(--text); }
-  .date-chip.selected{ background: var(--accent); border-color: var(--accent); }
-  .date-chip.selected .dow, .date-chip.selected .num{ color: var(--accent-text); }
+  .card.selected{ background: var(--moss); border-color: var(--moss); }
+  .card.selected .card-title,
+  .card.selected .card-price{ color: var(--linen); }
+  .card.selected .card-sub{ color: var(--bronze-soft); }
+  .card-row{ display:flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+  .card-title{ font-family:'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--moss); }
+  .card-price{ font-size: 15px; font-weight: 500; color: var(--bronze); white-space: nowrap; }
+  .card-sub{ color: var(--text-soft); font-size: 14px; margin-top: 3px; }
 
+  /* ---- Календар ---- */
+  .calendar{ background: var(--sand); border-radius: 16px; padding: 16px 13px 14px; }
+  .cal-head{ display:flex; align-items:center; justify-content: space-between; margin-bottom: 14px; padding: 0 4px; }
+  .cal-month{ font-family:'Cormorant Garamond', serif; font-size: 23px; font-weight: 500; text-transform: capitalize; }
+  .cal-nav{ display:flex; gap: 6px; }
+  .cal-arrow{
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
+    background: transparent; color: var(--moss); cursor: pointer;
+    display:flex; align-items:center; justify-content:center; font-size: 16px; line-height:1;
+    font-family:'Jost', sans-serif;
+  }
+  .cal-arrow:disabled{ opacity: .22; cursor: default; }
+  .cal-grid{ display:grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-dow{
+    text-align:center; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--sage); padding-bottom: 8px;
+  }
+  .cal-day{
+    aspect-ratio: 1 / 1; display:flex; align-items:center; justify-content:center;
+    border-radius: 50%; font-size: 15px; font-weight: 400; color: var(--moss);
+    cursor: pointer; font-variant-numeric: tabular-nums;
+  }
+  .cal-day.empty{ cursor: default; }
+  .cal-day.off{ color: var(--text-soft); opacity: .28; cursor: default; }
+  .cal-day.selected{ background: var(--moss); color: var(--linen); font-weight: 500; }
+  .cal-day.today:not(.selected){ box-shadow: inset 0 0 0 1px var(--bronze-soft); }
+
+  /* ---- Час ---- */
   .slot-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .slot{
-    text-align:center; padding: 12px 0; border-radius: 12px; background: var(--bg-raised);
-    border: 1px solid var(--line); color: var(--text); cursor:pointer; font-weight: 600; font-size: 14.5px;
+    text-align:center; padding: 13px 0; border-radius: 12px; background: var(--sand);
+    color: var(--moss); cursor:pointer; font-size: 15px; font-weight: 400;
+    font-variant-numeric: tabular-nums; transition: background .16s ease, color .16s ease;
   }
-  .slot.taken{ color: var(--text-dim); opacity: .35; cursor: not-allowed; text-decoration: line-through; }
-  .slot.selected{ background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  .slot.selected{ background: var(--moss); color: var(--linen); font-weight: 500; }
 
-  label.field-label{ display:block; color: var(--text-dim); font-size: 13.5px; margin: 14px 0 6px; }
+  /* ---- Поля ---- */
+  label.field-label{
+    display:block; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--sage); margin: 18px 0 7px;
+  }
   input[type=text], input[type=tel]{
-    width:100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--text);
-    border-radius: 12px; padding: 13px 14px; font-size: 15.5px; font-family:'Karla',sans-serif;
+    width:100%; background: var(--sand); border: 1px solid transparent; color: var(--moss);
+    border-radius: 12px; padding: 14px 16px; font-size: 16px;
+    font-family:'Jost', sans-serif; font-weight: 400;
   }
-  input::placeholder{ color: var(--text-dim); opacity: .7; }
+  input:focus{ outline:none; border-color: var(--bronze-soft); }
+  input::placeholder{ color: var(--text-soft); opacity: .55; }
 
-  .summary{ background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 18px; }
-  .summary-row{ display:flex; justify-content: space-between; padding: 7px 0; font-size: 14.5px; border-bottom: 1px solid var(--line); }
+  /* ---- Підсумок ---- */
+  .summary{ background: var(--sand); border-radius: 14px; padding: 6px 18px; margin-top: 22px; }
+  .summary-row{ display:flex; justify-content: space-between; gap:14px; padding: 11px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
   .summary-row:last-child{ border-bottom:none; }
-  .summary-row .k{ color: var(--text-dim); }
+  .summary-row .k{ color: var(--text-soft); flex: 0 0 auto; }
+  .summary-row .v{ text-align: right; font-weight: 400; }
 
-  .btn-row{ display:flex; gap: 10px; margin-top: 22px; }
+  /* ---- Кнопки ---- */
+  .btn-row{ display:flex; gap: 10px; margin-top: 26px; }
   .btn{
-    flex:1; text-align:center; padding: 14px 0; border-radius: 14px; border: none;
-    font-family:'Karla', sans-serif; font-weight: 700; font-size: 15px; cursor:pointer;
+    flex:1; text-align:center; padding: 16px 0; border-radius: 100px; border: none;
+    font-family:'Jost', sans-serif; font-weight: 500; font-size: 13.5px;
+    letter-spacing: .14em; text-transform: uppercase; cursor:pointer;
   }
-  .btn-primary{ background: var(--accent); color: var(--accent-text); }
-  .btn-primary[disabled]{ opacity: .35; pointer-events:none; }
-  .btn-ghost{ background: transparent; color: var(--text-dim); border: 1px solid var(--line); flex: 0 0 96px; }
+  .btn-primary{ background: var(--moss); color: var(--linen); }
+  .btn-primary[disabled]{ opacity: .28; pointer-events:none; }
+  .btn-ghost{ background: transparent; color: var(--text-soft); border: 1px solid var(--line); flex: 0 0 104px; }
 
-  /* Confirmation */
-  .confirm-wrap{ text-align:center; padding: 30px 10px 10px; }
-  .confirm-mark{
-    width: 56px; height:56px; border-radius: 50%; background: var(--sage); margin: 0 auto 18px;
-    display:flex; align-items:center; justify-content:center;
+  /* ---- Підтвердження ---- */
+  .confirm-wrap{ text-align:center; padding: 22px 6px 4px; }
+  .confirm-mark{ margin: 0 auto 16px; }
+  .confirm-wrap h2{ font-size: 32px; margin-bottom: 10px; }
+  .confirm-wrap p{ color: var(--text-soft); font-size: 15px; max-width: 30ch; margin: 0 auto; }
+  .confirm-card{ background: var(--sand); border-radius: 14px; padding: 6px 18px; margin: 22px 0 16px; text-align: left; }
+  .confirm-card .summary-row{ padding: 11px 0; }
+  .confirm-place{ font-size: 15px; color: var(--text-soft); margin-bottom: 20px; line-height: 1.75; }
+  .confirm-place a{ color: var(--bronze); text-decoration:none; font-weight: 400; }
+  .cal-btn{
+    display:block; text-align:center; padding: 16px 0; border-radius: 100px;
+    text-decoration:none; font-weight: 500; font-size: 13.5px;
+    letter-spacing: .14em; text-transform: uppercase; margin-bottom: 9px;
   }
-  .confirm-wrap h2{ font-size: 24px; margin-bottom: 8px; }
-  .confirm-wrap p{ color: var(--text-dim); font-size: 14.5px; max-width: 30ch; margin: 0 auto; }
+  .cal-btn.primary{ background: var(--moss); color: var(--linen); }
+  .cal-btn.secondary{ background: transparent; color: var(--text-soft); border: 1px solid var(--line); }
 
-  /* Contacts panel */
-  .contact-block{ background: var(--bg-raised); border:1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
-  .contact-block h3{ font-size: 17px; margin-bottom: 6px; }
-  .contact-block p{ color: var(--text-dim); margin: 0; font-size: 14.5px; }
-  .contact-block a{ color: var(--accent); text-decoration:none; font-weight: 600; }
-  .hours-row{ display:flex; justify-content:space-between; font-size: 14.5px; padding: 5px 0; }
-  .hours-row .d{ color: var(--text-dim); }
+  /* ---- Контакти ---- */
+  .contact-block{ background: var(--sand); border-radius: 14px; padding: 18px 20px; margin-bottom: 10px; }
+  .contact-block h3{
+    font-family:'Jost', sans-serif; font-size: 11px; font-weight: 400;
+    letter-spacing: .24em; text-transform: uppercase; color: var(--sage); margin-bottom: 8px;
+  }
+  .contact-block p{ margin: 0; font-size: 16px; color: var(--moss); }
+  .contact-block a{ color: var(--bronze); text-decoration:none; }
+  .hours-row{ display:flex; justify-content:space-between; font-size: 15px; padding: 6px 0; }
+  .hours-row .d{ color: var(--text-soft); }
   .map-btn{
-    display:block; text-align:center; background: var(--accent); color: var(--accent-text);
-    padding: 14px 0; border-radius: 14px; font-weight: 700; text-decoration:none; margin-top: 4px;
+    display:block; text-align:center; background: var(--moss); color: var(--linen);
+    padding: 16px 0; border-radius: 100px; font-weight: 500; font-size: 13.5px;
+    letter-spacing: .14em; text-transform: uppercase; text-decoration:none; margin-top: 6px;
   }
-  .note{ font-size: 12.5px; color: var(--text-dim); text-align:center; margin-top: 22px; opacity: .7; }
+
+  .divider{ display:block; margin: 30px auto 0; opacity: .8; }
+  .note{ font-size: 12px; color: var(--text-soft); text-align:center; margin-top: 14px; opacity: .75; }
 </style>
 </head>
 <body>
 <div class="app">
 
+  <div class="brand">
+    <svg class="branch" width="46" height="46" viewBox="0 0 46 46" fill="none">
+      <path d="M40 6C40 6 30 10 24 18C18 26 16 38 16 38" stroke="#8FA08A" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M33 11C33 11 29 8 25 9" stroke="#8FA08A" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M28 17C28 17 24 15 20 17" stroke="#8FA08A" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M23 25C23 25 19 24 16 27" stroke="#8FA08A" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M36 9C38 7 40 7 41 5" stroke="#D2B48A" stroke-width="1.1" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-greek">Σῶμα</div>
+    <svg class="brand-wave" width="88" height="9" viewBox="0 0 88 9" fill="none">
+      <path d="M1 5C9 5 9 1.6 17 1.6C25 1.6 25 7.4 33 7.4C41 7.4 41 1.6 49 1.6C57 1.6 57 7.4 65 7.4C73 7.4 73 2.6 87 4.4" stroke="#8F6034" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-latin">sōma</div>
+    <div class="brand-tag">Body &amp; Soul</div>
+  </div>
+
   <div class="hero">
-    <div class="hero-eyebrow">Кабінет масажу · Гармонія</div>
-    <h1>Час подбати<br>про тіло</h1>
-    <p>Оберіть процедуру та зручний час — ми підтвердимо запис протягом дня.</p>
+    <div class="eyebrow">Масаж · Відновлення · Спокій</div>
+    <h1>Тиша для тіла<br>й душі</h1>
+    <p>Ваш час — тільки для вас. Оберіть процедуру та зручну годину, решту ми візьмемо на себе.</p>
   </div>
 
   <div class="tabs">
@@ -151,7 +256,7 @@
     <button class="tab" data-tab="contacts">Контакти</button>
   </div>
 
-  <!-- BOOKING PANEL -->
+  <!-- ЗАПИС -->
   <div class="panel active" id="panel-booking">
 
     <div class="steps">
@@ -159,42 +264,50 @@
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
       <div class="step-dot" id="dot-4"></div>
+      <div class="step-dot" id="dot-5"></div>
     </div>
 
-    <!-- Step 1: service -->
     <div class="step" id="step-1">
       <div class="section-label">Оберіть процедуру</div>
       <div id="service-list"></div>
     </div>
 
-    <!-- Step 2: date & time -->
     <div class="step" id="step-2" style="display:none">
+      <div class="section-label">Оберіть майстра</div>
+      <div id="specialist-list"></div>
+    </div>
+
+    <div class="step" id="step-3" style="display:none">
       <div class="section-label">Оберіть день</div>
-      <div class="date-row" id="date-row"></div>
+      <div class="calendar" id="calendar"></div>
       <div class="section-label">Оберіть час</div>
       <div class="slot-grid" id="slot-grid"></div>
     </div>
 
-    <!-- Step 3: details -->
-    <div class="step" id="step-3" style="display:none">
+    <div class="step" id="step-4" style="display:none">
       <div class="section-label">Ваші дані</div>
-      <label class="field-label" for="inp-name">Ім'я</label>
+      <label class="field-label" for="inp-name">Ім’я</label>
       <input type="text" id="inp-name" placeholder="Як до вас звертатись">
       <label class="field-label" for="inp-phone">Телефон</label>
       <input type="tel" id="inp-phone" placeholder="+380">
-
       <div class="summary" id="summary-box"></div>
     </div>
 
-    <!-- Step 4: confirmation -->
-    <div class="step" id="step-4" style="display:none">
+    <div class="step" id="step-5" style="display:none">
       <div class="confirm-wrap">
-        <div class="confirm-mark">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5L10 17.5L19 7.5" stroke="#1B211C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h2>Запис надіслано</h2>
-        <p>Адміністратор кабінету зв'яжеться з вами для підтвердження.</p>
+        <svg class="confirm-mark" width="54" height="54" viewBox="0 0 54 54" fill="none">
+          <circle cx="27" cy="27" r="26" stroke="#8FA08A" stroke-width="1.2"/>
+          <path d="M17 27.5L24 34.5L38 20.5" stroke="#8F6034" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2>Запис прийнято</h2>
+        <p>Адміністратор зв’яжеться з вами для підтвердження.</p>
       </div>
+
+      <div class="confirm-card" id="confirm-details"></div>
+      <div class="confirm-place" id="confirm-place"></div>
+
+      <a class="cal-btn primary" id="btn-gcal" target="_blank" rel="noopener">Додати в календар</a>
+      <a class="cal-btn secondary" id="btn-ics" download="soma.ics">Завантажити файл події</a>
     </div>
 
     <div class="btn-row" id="btn-row">
@@ -203,55 +316,126 @@
     </div>
   </div>
 
-  <!-- CONTACTS PANEL -->
+  <!-- КОНТАКТИ -->
   <div class="panel" id="panel-contacts">
     <div class="contact-block">
       <h3>Адреса</h3>
-      <p>вул. Прикладна, 12, Чернівці</p>
+      <p id="c-address"></p>
     </div>
     <div class="contact-block">
       <h3>Телефон</h3>
-      <p><a href="tel:+380000000000">+380 00 000 00 00</a></p>
+      <p><a id="c-phone" href="#"></a></p>
     </div>
     <div class="contact-block">
       <h3>Графік роботи</h3>
-      <div class="hours-row"><span class="d">Пн – Пт</span><span>10:00 – 20:00</span></div>
-      <div class="hours-row"><span class="d">Сб</span><span>10:00 – 16:00</span></div>
-      <div class="hours-row"><span class="d">Нд</span><span>вихідний</span></div>
+      <div id="c-hours"><div class="hours-row"><span class="d">Завантаження…</span></div></div>
     </div>
-    <a class="map-btn" id="map-link" href="#" target="_blank">Прокласти маршрут</a>
+    <a class="map-btn" id="map-link" href="#" target="_blank" rel="noopener">Прокласти маршрут</a>
   </div>
 
-  <div class="note">Дані кабінету — тестові, замінюються на реальні перед публікацією.</div>
+  <svg class="divider" width="120" height="9" viewBox="0 0 120 9" fill="none">
+    <path d="M1 4.6C12 4.6 12 1.4 23 1.4C34 1.4 34 7.6 45 7.6C56 7.6 56 1.4 67 1.4C78 1.4 78 7.6 89 7.6C100 7.6 100 2.4 119 4.4" stroke="#D2B48A" stroke-width="1.1" stroke-linecap="round"/>
+  </svg>
+  <div class="note">Дані кабінету — тестові, замінюються на реальні перед публікацією. <span id="ver"></span></div>
 </div>
 
 <script>
+
   // --- Telegram WebApp integration (safe no-op outside Telegram) ---
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) { tg.ready(); tg.expand(); }
+
+  /**
+   * ID користувача Telegram.
+   * Основний шлях — SDK. Якщо він не віддав дані, читаємо їх напряму
+   * з адреси сторінки: Telegram передає initData у фрагменті після #.
+   */
+  function getTelegramUserId(){
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id){
+      return String(tg.initDataUnsafe.user.id);
+    }
+    try {
+      const hash = location.hash.replace(/^#/, '');
+      const outer = new URLSearchParams(hash);
+      const raw = outer.get('tgWebAppData');
+      if (!raw) return '';
+      const inner = new URLSearchParams(raw);
+      const userJson = inner.get('user');
+      if (!userJson) return '';
+      const user = JSON.parse(decodeURIComponent(userJson));
+      return user && user.id ? String(user.id) : '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  // ===== ДАНІ КАБІНЕТУ — заповніть реальними =====
+  const SALON = {
+    name:    'SOMA · Body & Soul',
+    address: 'вул. Чорноморська, 4А, Чернівці',
+    phone:   '+380 68 967 69 41',   // ← впишіть реальний номер
+    // Посилання на карту: відкрийте місце в Google Maps → «Поділитися» → скопіюйте
+    mapUrl:  'https://maps.app.goo.gl/Uy7tFHRDmgomLeqk7?g_st=ic'
+  };
+  // ================================================
 
   // --- Джерело даних: Google Apps Script Web App ---
   // Вставте сюди URL, який Apps Script видасть після Deploy → Web app
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-DPEiYJkUpUILSLb1qX0AC39xa26KLJKQfCJXttLBJ7NKvrPsX2a3Q5T_gbmEBkhL/exec';
 
   let services = [];
+  let specialists = [];
   let availableSlots = [];
   let dayClosed = false;
+  let skipSpecialistStep = false;
 
-  const state = { step: 1, service: null, date: null, time: null, name: '', phone: '' };
+  const state = { step: 1, service: null, specialist: null, date: null, time: null, name: '', phone: '' };
+
+  const TOTAL_STEPS = 5;
+
+  // ---------- Завантаження даних ----------
 
   async function loadServices(){
     const wrap = document.getElementById('service-list');
     wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Завантаження послуг…</div>';
     try {
       const res = await fetch(`${APPS_SCRIPT_URL}?action=services`);
-      services = await res.json();
-      if (!Array.isArray(services)) throw new Error('bad response');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      try {
+        services = JSON.parse(text);
+      } catch (parseErr) {
+        throw new Error('Відповідь не JSON: ' + text.slice(0, 120));
+      }
+      if (!Array.isArray(services)) throw new Error('Очікувався список, прийшло: ' + text.slice(0, 120));
     } catch (err) {
-      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Не вдалося завантажити послуги. Перевірте URL скрипта та з’єднання.</div>';
+      wrap.innerHTML =
+        '<div class="card-sub" style="padding:6px 2px; word-break:break-word;">' +
+        'Не вдалося завантажити послуги.<br><br>' +
+        '<b>Причина:</b> ' + String(err && err.message ? err.message : err) + '<br><br>' +
+        '<b>Адреса:</b> ' + APPS_SCRIPT_URL.slice(0, 60) + '…' +
+        '</div>';
       return;
     }
     renderServices();
+  }
+
+  async function loadSpecialists(serviceId){
+    const wrap = document.getElementById('specialist-list');
+    wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Завантаження майстрів…</div>';
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=specialists&service=${encodeURIComponent(serviceId)}`);
+      specialists = await res.json();
+      if (!Array.isArray(specialists)) specialists = [];
+    } catch (err) {
+      specialists = [];
+    }
+
+    // Якщо майстер один (або їх немає у таблиці) — крок вибору пропускаємо
+    skipSpecialistStep = specialists.length <= 1;
+    state.specialist = specialists.length === 1 ? specialists[0] : null;
+
+    renderSpecialists();
   }
 
   async function loadSlots(date){
@@ -260,7 +444,13 @@
     availableSlots = [];
     dayClosed = false;
     try {
-      const res = await fetch(`${APPS_SCRIPT_URL}?action=slots&date=${date}`);
+      const params = new URLSearchParams({
+        action: 'slots',
+        date: date,
+        specialist: state.specialist ? state.specialist.id : '',
+        duration: state.service ? (state.service.durationMin || 30) : 30
+      });
+      const res = await fetch(`${APPS_SCRIPT_URL}?${params}`);
       const data = await res.json();
       availableSlots = Array.isArray(data.slots) ? data.slots : [];
       dayClosed = !!data.closed;
@@ -270,16 +460,7 @@
     renderSlots();
   }
 
-  const dowNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
-  function buildDates(){
-    const out = [];
-    const today = new Date();
-    for (let i = 0; i < 7; i++){
-      const d = new Date(today); d.setDate(today.getDate() + i);
-      out.push(d);
-    }
-    return out;
-  }
+  // ---------- Відображення ----------
 
   function renderServices(){
     const wrap = document.getElementById('service-list');
@@ -288,21 +469,145 @@
       const el = document.createElement('div');
       el.className = 'card' + (state.service && state.service.id === s.id ? ' selected' : '');
       el.innerHTML = `<div class="card-row"><span class="card-title">${s.title}</span><span class="card-price">${s.price}</span></div><div class="card-sub">${s.duration}</div>`;
-      el.onclick = () => { state.service = s; renderServices(); updateNextBtn(); };
+      el.onclick = () => {
+        const changed = !state.service || state.service.id !== s.id;
+        state.service = s;
+        if (changed){ state.specialist = null; state.date = null; state.time = null; }
+        renderServices();
+        updateNextBtn();
+      };
       wrap.appendChild(el);
     });
   }
 
-  function renderDates(){
-    const wrap = document.getElementById('date-row');
+  function renderSpecialists(){
+    const wrap = document.getElementById('specialist-list');
     wrap.innerHTML = '';
-    buildDates().forEach(d => {
-      const key = d.toISOString().slice(0,10);
+    if (!specialists.length){
+      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Список майстрів порожній.</div>';
+      return;
+    }
+    specialists.forEach(sp => {
       const el = document.createElement('div');
-      el.className = 'date-chip' + (state.date === key ? ' selected' : '');
-      el.innerHTML = `<span class="dow">${dowNames[d.getDay()]}</span><span class="num">${d.getDate()}</span>`;
-      el.onclick = () => { state.date = key; state.time = null; renderDates(); loadSlots(key); updateNextBtn(); };
+      el.className = 'card' + (state.specialist && state.specialist.id === sp.id ? ' selected' : '');
+      el.innerHTML = `<div class="card-row"><span class="card-title">${sp.name}</span></div>` +
+                     (sp.about ? `<div class="card-sub">${sp.about}</div>` : '');
+      el.onclick = () => {
+        state.specialist = sp;
+        state.date = null; state.time = null;
+        renderSpecialists();
+        updateNextBtn();
+      };
       wrap.appendChild(el);
+    });
+  }
+
+  // ---------- Календар ----------
+
+  const MONTHS_UK = ['січень','лютий','березень','квітень','травень','червень',
+                     'липень','серпень','вересень','жовтень','листопад','грудень'];
+  const DOW_SHORT = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+  const BOOKING_HORIZON_DAYS = 60;   // наскільки наперед можна записатись
+
+  let calCursor = startOfMonth(new Date());
+  let workingDays = null;            // ['Пн','Вт',...] або null, поки не завантажено
+
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  function toKey(d){
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+
+  async function loadWorkingDays(){
+    try {
+      const params = new URLSearchParams({
+        action: 'workdays',
+        specialist: state.specialist ? state.specialist.id : ''
+      });
+      const res = await fetch(`${APPS_SCRIPT_URL}?${params}`);
+      const data = await res.json();
+      workingDays = Array.isArray(data.days) ? data.days : null;
+    } catch (err) {
+      workingDays = null;   // не вдалося — не гасимо нічого
+    }
+    renderCalendar();
+  }
+
+  function isSelectable(date){
+    const today = stripTime(new Date());
+    const limit = new Date(today);
+    limit.setDate(limit.getDate() + BOOKING_HORIZON_DAYS);
+
+    if (date < today || date > limit) return false;
+    if (workingDays){
+      const dow = DOW_SHORT[(date.getDay() + 6) % 7];
+      if (workingDays.indexOf(dow) === -1) return false;
+    }
+    return true;
+  }
+
+  function renderCalendar(){
+    const wrap = document.getElementById('calendar');
+    const year = calCursor.getFullYear();
+    const month = calCursor.getMonth();
+    const today = stripTime(new Date());
+
+    const limit = new Date(today);
+    limit.setDate(limit.getDate() + BOOKING_HORIZON_DAYS);
+
+    const canGoBack = calCursor > startOfMonth(today);
+    const canGoFwd = startOfMonth(new Date(year, month + 1, 1)) <= startOfMonth(limit);
+
+    let html = `
+      <div class="cal-head">
+        <span class="cal-month">${MONTHS_UK[month]} ${year}</span>
+        <span class="cal-nav">
+          <button class="cal-arrow" id="cal-prev" ${canGoBack ? '' : 'disabled'}>‹</button>
+          <button class="cal-arrow" id="cal-next" ${canGoFwd ? '' : 'disabled'}>›</button>
+        </span>
+      </div>
+      <div class="cal-grid">`;
+
+    DOW_SHORT.forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
+
+    // Порожні клітинки до першого числа (тиждень починається з понеділка)
+    const first = new Date(year, month, 1);
+    const lead = (first.getDay() + 6) % 7;
+    for (let i = 0; i < lead; i++) html += '<div class="cal-day empty"></div>';
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++){
+      const date = new Date(year, month, day);
+      const key = toKey(date);
+      const ok = isSelectable(date);
+
+      const classes = ['cal-day'];
+      if (!ok) classes.push('off');
+      if (state.date === key) classes.push('selected');
+      if (key === toKey(today)) classes.push('today');
+
+      html += `<div class="${classes.join(' ')}" ${ok ? `data-date="${key}"` : ''}>${day}</div>`;
+    }
+
+    html += '</div>';
+    wrap.innerHTML = html;
+
+    const prev = document.getElementById('cal-prev');
+    const next = document.getElementById('cal-next');
+    if (prev && canGoBack) prev.onclick = () => { calCursor = new Date(year, month - 1, 1); renderCalendar(); };
+    if (next && canGoFwd) next.onclick = () => { calCursor = new Date(year, month + 1, 1); renderCalendar(); };
+
+    wrap.querySelectorAll('.cal-day[data-date]').forEach(el => {
+      el.onclick = () => {
+        state.date = el.dataset.date;
+        state.time = null;
+        renderCalendar();
+        loadSlots(state.date);
+        updateNextBtn();
+      };
     });
   }
 
@@ -312,7 +617,7 @@
     if (!state.date){ return; }
 
     if (dayClosed){
-      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Цього дня кабінет не працює. Оберіть іншу дату.</div>';
+      wrap.innerHTML = '<div class="card-sub" style="padding:6px 2px;">Цього дня майстер не працює. Оберіть іншу дату.</div>';
       return;
     }
     if (!availableSlots.length){
@@ -332,18 +637,25 @@
   function renderSummary(){
     const box = document.getElementById('summary-box');
     const d = new Date(state.date);
-    const dateLabel = `${d.getDate()} ${['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'][d.getMonth()]}`;
+    const months = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+    const dateLabel = `${d.getDate()} ${months[d.getMonth()]}`;
     box.innerHTML = `
       <div class="summary-row"><span class="k">Процедура</span><span>${state.service.title}</span></div>
+      ${state.specialist ? `<div class="summary-row"><span class="k">Майстер</span><span>${state.specialist.name}</span></div>` : ''}
       <div class="summary-row"><span class="k">Дата</span><span>${dateLabel}</span></div>
       <div class="summary-row"><span class="k">Час</span><span>${state.time}</span></div>
+      <div class="summary-row"><span class="k">Тривалість</span><span>${state.service.duration}</span></div>
       <div class="summary-row"><span class="k">Вартість</span><span>${state.service.price}</span></div>
     `;
   }
 
+  // ---------- Навігація ----------
+
   function updateDots(){
-    for (let i=1;i<=4;i++){
-      const dot = document.getElementById('dot-'+i);
+    for (let i = 1; i <= TOTAL_STEPS; i++){
+      const dot = document.getElementById('dot-' + i);
+      if (!dot) continue;
+      dot.style.display = (i === 2 && skipSpecialistStep) ? 'none' : '';
       dot.className = 'step-dot' + (i < state.step ? ' done' : (i === state.step ? ' current' : ''));
     }
   }
@@ -352,21 +664,25 @@
     const btn = document.getElementById('btn-next');
     let ok = false;
     if (state.step === 1) ok = !!state.service;
-    if (state.step === 2) ok = !!(state.date && state.time);
-    if (state.step === 3) ok = !!(state.name.trim() && state.phone.trim());
+    if (state.step === 2) ok = !!state.specialist;
+    if (state.step === 3) ok = !!(state.date && state.time);
+    if (state.step === 4) ok = !!(state.name.trim() && state.phone.trim());
     btn.disabled = !ok;
   }
 
   function showStep(n){
-    for (let i=1;i<=4;i++){
-      document.getElementById('step-'+i).style.display = (i===n) ? 'block' : 'none';
+    for (let i = 1; i <= TOTAL_STEPS; i++){
+      document.getElementById('step-' + i).style.display = (i === n) ? 'block' : 'none';
     }
-    document.getElementById('btn-back').style.visibility = (n===1 || n===4) ? 'hidden' : 'visible';
-    document.getElementById('btn-row').style.display = (n===4) ? 'none' : 'flex';
+    document.getElementById('btn-back').style.visibility = (n === 1 || n === 5) ? 'hidden' : 'visible';
+    document.getElementById('btn-row').style.display = (n === 5) ? 'none' : 'flex';
+
     const btn = document.getElementById('btn-next');
-    btn.textContent = (n===3) ? 'Підтвердити запис' : 'Далі';
-    if (n===2) renderDates();
-    if (n===3) renderSummary();
+    btn.textContent = (n === 4) ? 'Підтвердити запис' : 'Далі';
+
+    if (n === 3) { renderCalendar(); loadWorkingDays(); }
+    if (n === 4) renderSummary();
+    if (n === 5) renderConfirmation();
     updateDots();
     updateNextBtn();
   }
@@ -375,20 +691,36 @@
   document.getElementById('inp-phone').addEventListener('input', e => { state.phone = e.target.value; updateNextBtn(); });
 
   document.getElementById('btn-next').onclick = async () => {
-    if (state.step === 3){
+    // Після вибору послуги підтягуємо тих майстрів, хто її виконує
+    if (state.step === 1){
+      state.step = 2;
+      showStep(2);
+      await loadSpecialists(state.service.id);
+      if (skipSpecialistStep){
+        state.step = 3;
+        showStep(3);
+      } else {
+        updateNextBtn();
+      }
+      return;
+    }
+
+    if (state.step === 4){
       const btn = document.getElementById('btn-next');
       btn.disabled = true;
       btn.textContent = 'Надсилаємо…';
 
       const payload = {
         service: state.service.title,
+        serviceId: state.service.id,
+        durationMin: state.service.durationMin || 30,
+        specialistId: state.specialist ? state.specialist.id : '',
+        specialistName: state.specialist ? state.specialist.name : '',
         date: state.date,
         time: state.time,
         name: state.name,
         phone: state.phone,
-        tgUser: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user)
-          ? tg.initDataUnsafe.user.id
-          : ''
+        tgUser: getTelegramUserId()
       };
 
       try {
@@ -399,18 +731,22 @@
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        // Запит міг не дати відповіді через no-cors, але дані вже пішли на сервер.
+        // за no-cors відповіді немає, але дані вже надіслані
       }
 
-      state.step = 4;
-      showStep(4);
+      state.step = 5;
+      showStep(5);
       return;
     }
-    state.step = Math.min(4, state.step + 1);
+
+    state.step = Math.min(TOTAL_STEPS, state.step + 1);
     showStep(state.step);
   };
+
   document.getElementById('btn-back').onclick = () => {
-    state.step = Math.max(1, state.step - 1);
+    let prev = state.step - 1;
+    if (prev === 2 && skipSpecialistStep) prev = 1;
+    state.step = Math.max(1, prev);
     showStep(state.step);
   };
 
@@ -424,11 +760,143 @@
     };
   });
 
-  // Map link (замінити адресу на реальну)
-  document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
+  // ---------- Контакти ----------
 
+  function mapLink(){
+    return SALON.mapUrl || ('https://maps.google.com/?q=' + encodeURIComponent(SALON.address));
+  }
+
+  function renderContacts(){
+    document.getElementById('c-address').textContent = SALON.address;
+    const phoneEl = document.getElementById('c-phone');
+    phoneEl.textContent = SALON.phone;
+    phoneEl.href = 'tel:' + SALON.phone.replace(/[^+\d]/g, '');
+    document.getElementById('map-link').href = mapLink();
+  }
+
+  async function loadWorkingHoursTable(){
+    const wrap = document.getElementById('c-hours');
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=workdays`);
+      const data = await res.json();
+      if (!data.hours || !data.hours.length) throw new Error('empty');
+
+      wrap.innerHTML = data.hours.map(row => {
+        const value = (row.start && row.end) ? `${row.start} – ${row.end}` : 'вихідний';
+        return `<div class="hours-row"><span class="d">${row.day}</span><span>${value}</span></div>`;
+      }).join('');
+    } catch (err) {
+      wrap.innerHTML = '<div class="hours-row"><span class="d">Графік уточнюйте за телефоном</span></div>';
+    }
+  }
+
+  // ---------- Підтвердження та календар ----------
+
+  function pad(n){ return String(n).padStart(2, '0'); }
+
+  /** '2026-09-21' + '16:30' + 90 хв → { start: Date, end: Date } */
+  function bookingRange(){
+    const [y, m, d] = state.date.split('-').map(Number);
+    const [hh, mm] = state.time.split(':').map(Number);
+    const start = new Date(y, m - 1, d, hh, mm);
+    const end = new Date(start.getTime() + (state.service.durationMin || 60) * 60000);
+    return { start, end };
+  }
+
+  /** Формат для календарів: 20260921T163000 */
+  function calStamp(d){
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  }
+
+  function eventTitle(){
+    return state.service.title + (state.specialist ? ` — ${state.specialist.name}` : '');
+  }
+
+  function eventDescription(){
+    const parts = [SALON.name];
+    if (state.specialist) parts.push('Майстер: ' + state.specialist.name);
+    parts.push('Тривалість: ' + state.service.duration);
+    parts.push('Телефон: ' + SALON.phone);
+    return parts.join('\n');
+  }
+
+  function googleCalendarUrl(){
+    const { start, end } = bookingRange();
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: eventTitle(),
+      dates: `${calStamp(start)}/${calStamp(end)}`,
+      ctz: 'Europe/Kyiv',
+      location: SALON.address,
+      details: eventDescription()
+    });
+    return 'https://calendar.google.com/calendar/render?' + params;
+  }
+
+  /** Файл .ics для Apple Календаря, Outlook тощо — з нагадуванням за 2 години */
+  function icsBlobUrl(){
+    const { start, end } = bookingRange();
+    const uid = 'booking-' + Date.now() + '@massage';
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Massage Studio//UA//',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + calStamp(new Date()) + 'Z',
+      'DTSTART;TZID=Europe/Kyiv:' + calStamp(start),
+      'DTEND;TZID=Europe/Kyiv:' + calStamp(end),
+      'SUMMARY:' + eventTitle(),
+      'LOCATION:' + SALON.address,
+      'DESCRIPTION:' + eventDescription().replace(/\n/g, '\\n'),
+      'BEGIN:VALARM',
+      'TRIGGER:-PT2H',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Нагадування про масаж',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ];
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    return URL.createObjectURL(blob);
+  }
+
+  function renderConfirmation(){
+    const months = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+    const [y, m, d] = state.date.split('-').map(Number);
+    const dateLabel = `${d} ${months[m-1]} ${y}`;
+    const { end } = bookingRange();
+    const endLabel = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+
+    document.getElementById('confirm-details').innerHTML = `
+      <div class="summary-row"><span class="k">Процедура</span><span class="v">${state.service.title}</span></div>
+      ${state.specialist ? `<div class="summary-row"><span class="k">Майстер</span><span class="v">${state.specialist.name}</span></div>` : ''}
+      <div class="summary-row"><span class="k">Дата</span><span class="v">${dateLabel}</span></div>
+      <div class="summary-row"><span class="k">Час</span><span class="v">${state.time} – ${endLabel}</span></div>
+      <div class="summary-row"><span class="k">Вартість</span><span class="v">${state.service.price}</span></div>
+      <div class="summary-row"><span class="k">Ім’я</span><span class="v">${state.name}</span></div>
+      <div class="summary-row"><span class="k">Телефон</span><span class="v">${state.phone}</span></div>
+    `;
+
+    document.getElementById('confirm-place').innerHTML =
+      `📍 ${SALON.address}<br><a href="${mapLink()}" target="_blank" rel="noopener">Прокласти маршрут</a>` +
+      `<br>☎️ <a href="tel:${SALON.phone.replace(/[^+\d]/g, '')}">${SALON.phone}</a>`;
+
+    document.getElementById('btn-gcal').href = googleCalendarUrl();
+    document.getElementById('btn-ics').href = icsBlobUrl();
+  }
+
+  // Мітка збірки: змінюйте APP_VERSION при кожному оновленні файлу.
+  // Якщо після коміту в застосунку видно стару мітку — значить підхопилась копія з кешу.
+  const APP_VERSION = '2.0';
+  document.getElementById('ver').textContent = '· ' + APP_VERSION;
+
+  renderContacts();
+  loadWorkingHoursTable();
   loadServices();
   showStep(1);
+
 </script>
 </body>
 </html>
