@@ -154,6 +154,24 @@
     padding: 14px 0; border-radius: 14px; font-weight: 700; text-decoration:none; margin-top: 4px;
   }
   .note{ font-size: 12.5px; color: var(--text-dim); text-align:center; margin-top: 22px; opacity: .7; }
+
+  /* Підтвердження */
+  .confirm-card{
+    background: var(--bg-raised); border:1px solid var(--line); border-radius: 16px;
+    padding: 16px; margin: 18px 0 14px; text-align: left;
+  }
+  .confirm-card .summary-row{ display:flex; justify-content: space-between; gap: 14px; padding: 8px 0; font-size: 14.5px; border-bottom: 1px solid var(--line); }
+  .confirm-card .summary-row:last-child{ border-bottom:none; }
+  .confirm-card .k{ color: var(--text-dim); flex: 0 0 auto; }
+  .confirm-card .v{ text-align: right; }
+  .confirm-place{ text-align:left; font-size: 14.5px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+  .confirm-place a{ color: var(--accent); text-decoration:none; font-weight:600; }
+  .cal-btn{
+    display:block; text-align:center; padding: 14px 0; border-radius: 14px;
+    text-decoration:none; font-weight:700; font-size: 15px; margin-bottom: 8px;
+  }
+  .cal-btn.primary{ background: var(--accent); color: var(--accent-text); }
+  .cal-btn.secondary{ background: transparent; color: var(--text); border: 1px solid var(--line); }
 </style>
 </head>
 <body>
@@ -218,9 +236,15 @@
         <div class="confirm-mark">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5L10 17.5L19 7.5" stroke="#1B211C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h2>Запис надіслано</h2>
-        <p>Адміністратор кабінету зв'яжеться з вами для підтвердження.</p>
+        <h2>Запис прийнято</h2>
+        <p>Адміністратор зв’яжеться з вами для підтвердження.</p>
       </div>
+
+      <div class="confirm-card" id="confirm-details"></div>
+      <div class="confirm-place" id="confirm-place"></div>
+
+      <a class="cal-btn primary" id="btn-gcal" target="_blank" rel="noopener">Додати в Google Календар</a>
+      <a class="cal-btn secondary" id="btn-ics" download="masazh.ics">Завантажити для іншого календаря</a>
     </div>
 
     <div class="btn-row" id="btn-row">
@@ -233,19 +257,17 @@
   <div class="panel" id="panel-contacts">
     <div class="contact-block">
       <h3>Адреса</h3>
-      <p>вул. Прикладна, 12, Чернівці</p>
+      <p id="c-address"></p>
     </div>
     <div class="contact-block">
       <h3>Телефон</h3>
-      <p><a href="tel:+380000000000">+380 00 000 00 00</a></p>
+      <p><a id="c-phone" href="#"></a></p>
     </div>
     <div class="contact-block">
       <h3>Графік роботи</h3>
-      <div class="hours-row"><span class="d">Пн – Пт</span><span>10:00 – 20:00</span></div>
-      <div class="hours-row"><span class="d">Сб</span><span>10:00 – 16:00</span></div>
-      <div class="hours-row"><span class="d">Нд</span><span>вихідний</span></div>
+      <div id="c-hours"><div class="hours-row"><span class="d">Завантаження…</span></div></div>
     </div>
-    <a class="map-btn" id="map-link" href="#" target="_blank">Прокласти маршрут</a>
+    <a class="map-btn" id="map-link" href="#" target="_blank" rel="noopener">Прокласти маршрут</a>
   </div>
 
   <div class="note">Дані кабінету — тестові, замінюються на реальні перед публікацією. <span id="ver"></span></div>
@@ -279,6 +301,16 @@
       return '';
     }
   }
+
+  // ===== ДАНІ КАБІНЕТУ — заповніть реальними =====
+  const SALON = {
+    name:    'Кабінет масажу «Soma»',
+    address: 'вул. Чорноморська, 4А, Чернівці',
+    phone:   '+380 68 967 69 41',
+    // Посилання на карту: відкрийте місце в Google Maps → «Поділитися» → скопіюйте
+    mapUrl:  'https://maps.app.goo.gl/Uy7tFHRDmgomLeqk7?g_st=ic'
+  };
+  // ================================================
 
   // --- Джерело даних: Google Apps Script Web App ---
   // Вставте сюди URL, який Apps Script видасть після Deploy → Web app
@@ -583,6 +615,7 @@
 
     if (n === 3) { renderCalendar(); loadWorkingDays(); }
     if (n === 4) renderSummary();
+    if (n === 5) renderConfirmation();
     updateDots();
     updateNextBtn();
   }
@@ -660,14 +693,140 @@
     };
   });
 
-  // Map link (замінити адресу на реальну)
-  document.getElementById('map-link').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('вул. Прикладна, 12, Чернівці');
+  // ---------- Контакти ----------
+
+  function mapLink(){
+    return SALON.mapUrl || ('https://maps.google.com/?q=' + encodeURIComponent(SALON.address));
+  }
+
+  function renderContacts(){
+    document.getElementById('c-address').textContent = SALON.address;
+    const phoneEl = document.getElementById('c-phone');
+    phoneEl.textContent = SALON.phone;
+    phoneEl.href = 'tel:' + SALON.phone.replace(/[^+\d]/g, '');
+    document.getElementById('map-link').href = mapLink();
+  }
+
+  async function loadWorkingHoursTable(){
+    const wrap = document.getElementById('c-hours');
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=workdays`);
+      const data = await res.json();
+      if (!data.hours || !data.hours.length) throw new Error('empty');
+
+      wrap.innerHTML = data.hours.map(row => {
+        const value = (row.start && row.end) ? `${row.start} – ${row.end}` : 'вихідний';
+        return `<div class="hours-row"><span class="d">${row.day}</span><span>${value}</span></div>`;
+      }).join('');
+    } catch (err) {
+      wrap.innerHTML = '<div class="hours-row"><span class="d">Графік уточнюйте за телефоном</span></div>';
+    }
+  }
+
+  // ---------- Підтвердження та календар ----------
+
+  function pad(n){ return String(n).padStart(2, '0'); }
+
+  /** '2026-09-21' + '16:30' + 90 хв → { start: Date, end: Date } */
+  function bookingRange(){
+    const [y, m, d] = state.date.split('-').map(Number);
+    const [hh, mm] = state.time.split(':').map(Number);
+    const start = new Date(y, m - 1, d, hh, mm);
+    const end = new Date(start.getTime() + (state.service.durationMin || 60) * 60000);
+    return { start, end };
+  }
+
+  /** Формат для календарів: 20260921T163000 */
+  function calStamp(d){
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  }
+
+  function eventTitle(){
+    return state.service.title + (state.specialist ? ` — ${state.specialist.name}` : '');
+  }
+
+  function eventDescription(){
+    const parts = [SALON.name];
+    if (state.specialist) parts.push('Майстер: ' + state.specialist.name);
+    parts.push('Тривалість: ' + state.service.duration);
+    parts.push('Телефон: ' + SALON.phone);
+    return parts.join('\n');
+  }
+
+  function googleCalendarUrl(){
+    const { start, end } = bookingRange();
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: eventTitle(),
+      dates: `${calStamp(start)}/${calStamp(end)}`,
+      ctz: 'Europe/Kyiv',
+      location: SALON.address,
+      details: eventDescription()
+    });
+    return 'https://calendar.google.com/calendar/render?' + params;
+  }
+
+  /** Файл .ics для Apple Календаря, Outlook тощо — з нагадуванням за 2 години */
+  function icsBlobUrl(){
+    const { start, end } = bookingRange();
+    const uid = 'booking-' + Date.now() + '@massage';
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Massage Studio//UA//',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + calStamp(new Date()) + 'Z',
+      'DTSTART;TZID=Europe/Kyiv:' + calStamp(start),
+      'DTEND;TZID=Europe/Kyiv:' + calStamp(end),
+      'SUMMARY:' + eventTitle(),
+      'LOCATION:' + SALON.address,
+      'DESCRIPTION:' + eventDescription().replace(/\n/g, '\\n'),
+      'BEGIN:VALARM',
+      'TRIGGER:-PT2H',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Нагадування про масаж',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ];
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    return URL.createObjectURL(blob);
+  }
+
+  function renderConfirmation(){
+    const months = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+    const [y, m, d] = state.date.split('-').map(Number);
+    const dateLabel = `${d} ${months[m-1]} ${y}`;
+    const { end } = bookingRange();
+    const endLabel = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+
+    document.getElementById('confirm-details').innerHTML = `
+      <div class="summary-row"><span class="k">Процедура</span><span class="v">${state.service.title}</span></div>
+      ${state.specialist ? `<div class="summary-row"><span class="k">Майстер</span><span class="v">${state.specialist.name}</span></div>` : ''}
+      <div class="summary-row"><span class="k">Дата</span><span class="v">${dateLabel}</span></div>
+      <div class="summary-row"><span class="k">Час</span><span class="v">${state.time} – ${endLabel}</span></div>
+      <div class="summary-row"><span class="k">Вартість</span><span class="v">${state.service.price}</span></div>
+      <div class="summary-row"><span class="k">Ім’я</span><span class="v">${state.name}</span></div>
+      <div class="summary-row"><span class="k">Телефон</span><span class="v">${state.phone}</span></div>
+    `;
+
+    document.getElementById('confirm-place').innerHTML =
+      `📍 ${SALON.address}<br><a href="${mapLink()}" target="_blank" rel="noopener">Прокласти маршрут</a>` +
+      `<br>☎️ <a href="tel:${SALON.phone.replace(/[^+\d]/g, '')}">${SALON.phone}</a>`;
+
+    document.getElementById('btn-gcal').href = googleCalendarUrl();
+    document.getElementById('btn-ics').href = icsBlobUrl();
+  }
 
   // Мітка збірки: змінюйте APP_VERSION при кожному оновленні файлу.
   // Якщо після коміту в застосунку видно стару мітку — значить підхопилась копія з кешу.
-  const APP_VERSION = '1.0';
+  const APP_VERSION = '1.1';
   document.getElementById('ver').textContent = '· ' + APP_VERSION;
 
+  renderContacts();
+  loadWorkingHoursTable();
   loadServices();
   showStep(1);
 </script>
